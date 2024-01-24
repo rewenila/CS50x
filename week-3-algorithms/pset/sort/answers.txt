@@ -1,0 +1,11 @@
+sort1 uses: Bubble Sort
+
+How do you know?: It was the fastest one for the already sorted 50000 values.
+
+sort2 uses: Merge Sort
+
+How do you know?: Is the fastest one for random values.
+
+sort3 uses: Selection Sort
+
+How do you know?: Best and worst cases had practicaly the same run time.
