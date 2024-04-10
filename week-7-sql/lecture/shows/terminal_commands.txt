@@ -1,0 +1,436 @@
+$ sqlite3 shows.db
+
+sqlite> SELECT * FROM ratings LIMIT 10;
++---------+--------+-------+
+| show_id | rating | votes |
++---------+--------+-------+
+| 62614   | 6.7    | 319   |
+| 63881   | 7.8    | 1011  |
+| 63962   | 7.9    | 3651  |
+| 65269   | 7.8    | 114   |
+| 65270   | 7.8    | 26    |
+| 65272   | 6.7    | 2954  |
+| 65273   | 6.9    | 186   |
+| 65274   | 7.1    | 122   |
+| 65276   | 7.5    | 56    |
+| 65277   | 7.8    | 28    |
++---------+--------+-------+
+sqlite> SELECT * FROM shows LIMIT 10;
++-------+-----------------------------+------+----------+
+|  id   |            title            | year | episodes |
++-------+-----------------------------+------+----------+
+| 62614 | Zeg 'ns Aaa                 | 1981 | 227      |
+| 63881 | Catweazle                   | 1970 | 26       |
+| 63962 | UFO                         | 1970 | 26       |
+| 65269 | Ace of Wands                | 1970 | 46       |
+| 65270 | The Adventures of Don Quick | 1970 | 6        |
+| 65271 | Albert and Victoria         | 1970 | 12       |
+| 65272 | All My Children             | 1970 | 4337     |
+| 65273 | Archie's Funhouse           | 1970 | 23       |
+| 65274 | Arnie                       | 1970 | 48       |
+| 65276 | Barefoot in the Park        | 1970 | 12       |
++-------+-----------------------------+------+----------+
+sqlite> SELECT COUNT(*) FROM shows;
++----------+
+| COUNT(*) |
++----------+
+| 201703   |
++----------+
+sqlite> .schema shows
+CREATE TABLE shows (
+    id INTEGER,
+    title TEXT NOT NULL,
+    year NUMERIC,
+    episodes INTEGER,
+    PRIMARY KEY(id)
+);
+sqlite> .schema ratings
+CREATE TABLE ratings (
+    show_id INTEGER NOT NULL,
+    rating REAL NOT NULL,
+    votes INTEGER NOT NULL,
+    FOREIGN KEY(show_id) REFERENCES shows(id)
+);
+sqlite> SELECT * FROM ratings WHERE rating >= 6.0 LIMIT 10
+   ...> ;
++---------+--------+-------+
+| show_id | rating | votes |
++---------+--------+-------+
+| 62614   | 6.7    | 319   |
+| 63881   | 7.8    | 1011  |
+| 63962   | 7.9    | 3651  |
+| 65269   | 7.8    | 114   |
+| 65270   | 7.8    | 26    |
+| 65272   | 6.7    | 2954  |
+| 65273   | 6.9    | 186   |
+| 65274   | 7.1    | 122   |
+| 65276   | 7.5    | 56    |
+| 65277   | 7.8    | 28    |
++---------+--------+-------+
+sqlite> SELECT show_id FROM ratings WHERE rating >= 6.0 LIMIT 10;
++---------+
+| show_id |
++---------+
+| 62614   |
+| 63881   |
+| 63962   |
+| 65269   |
+| 65270   |
+| 65272   |
+| 65273   |
+| 65274   |
+| 65276   |
+| 65277   |
++---------+
+sqlite> SELECT * FROM shows WHERE id IN
+   ...> (SELECT show_id FROM ratings WHERE rating >= 6.0 LIMIT 10);
++-------+-----------------------------+------+----------+
+|  id   |            title            | year | episodes |
++-------+-----------------------------+------+----------+
+| 62614 | Zeg 'ns Aaa                 | 1981 | 227      |
+| 63881 | Catweazle                   | 1970 | 26       |
+| 63962 | UFO                         | 1970 | 26       |
+| 65269 | Ace of Wands                | 1970 | 46       |
+| 65270 | The Adventures of Don Quick | 1970 | 6        |
+| 65272 | All My Children             | 1970 | 4337     |
+| 65273 | Archie's Funhouse           | 1970 | 23       |
+| 65274 | Arnie                       | 1970 | 48       |
+| 65276 | Barefoot in the Park        | 1970 | 12       |
+| 65277 | The Best of Everything      | 1970 | 114      |
++-------+-----------------------------+------+----------+
+sqlite> SELECT * FROM shows JOIN ratings ON shows.id = ratings.show_id WHERE rating >=
+6.0 LIMIT 10;
++-------+-----------------------------+------+----------+---------+--------+-------+
+|  id   |            title            | year | episodes | show_id | rating | votes |
++-------+-----------------------------+------+----------+---------+--------+-------+
+| 62614 | Zeg 'ns Aaa                 | 1981 | 227      | 62614   | 6.7    | 319   |
+| 63881 | Catweazle                   | 1970 | 26       | 63881   | 7.8    | 1011  |
+| 63962 | UFO                         | 1970 | 26       | 63962   | 7.9    | 3651  |
+| 65269 | Ace of Wands                | 1970 | 46       | 65269   | 7.8    | 114   |
+| 65270 | The Adventures of Don Quick | 1970 | 6        | 65270   | 7.8    | 26    |
+| 65272 | All My Children             | 1970 | 4337     | 65272   | 6.7    | 2954  |
+| 65273 | Archie's Funhouse           | 1970 | 23       | 65273   | 6.9    | 186   |
+| 65274 | Arnie                       | 1970 | 48       | 65274   | 7.1    | 122   |
+| 65276 | Barefoot in the Park        | 1970 | 12       | 65276   | 7.5    | 56    |
+| 65277 | The Best of Everything      | 1970 | 114      | 65277   | 7.8    | 28    |
++-------+-----------------------------+------+----------+---------+--------+-------+
+sqlite> SELECT title, rating FROM shows JOIN ratings ON shows.id = ratings.show_id WHER
+E rating >= 6.0 LIMIT 10;
++-----------------------------+--------+
+|            title            | rating |
++-----------------------------+--------+
+| Zeg 'ns Aaa                 | 6.7    |
+| Catweazle                   | 7.8    |
+| UFO                         | 7.9    |
+| Ace of Wands                | 7.8    |
+| The Adventures of Don Quick | 7.8    |
+| All My Children             | 6.7    |
+| Archie's Funhouse           | 6.9    |
+| Arnie                       | 7.1    |
+| Barefoot in the Park        | 7.5    |
+| The Best of Everything      | 7.8    |
++-----------------------------+--------+
+sqlite> SELECT * FROM genres LIMIT 10;
++---------+-----------+
+| show_id |   genre   |
++---------+-----------+
+| 62614   | Comedy    |
+| 63881   | Adventure |
+| 63881   | Comedy    |
+| 63881   | Family    |
+| 63962   | Action    |
+| 63962   | Sci-Fi    |
+| 65269   | Family    |
+| 65269   | Fantasy   |
+| 65270   | Comedy    |
+| 65270   | Sci-Fi    |
++---------+-----------+
+sqlite> .schema genres
+CREATE TABLE genres (
+    show_id INTEGER NOT NULL,
+    genre TEXT NOT NULL,
+    FOREIGN KEY(show_id) REFERENCES shows(id)
+);
+sqlite> SELECT show_id FROM genres WHERE genre = 'Comedy' LIMIT 10;
++---------+
+| show_id |
++---------+
+| 62614   |
+| 63881   |
+| 65270   |
+| 65271   |
+| 65273   |
+| 65274   |
+| 65276   |
+| 65283   |
+| 65285   |
+| 65287   |
++---------+
+sqlite> SELECT title FROM shows WHERE id IN
+   ...> (SELECT show_id FROM genres WHERE genre = 'Comedy' LIMIT 10);
++-----------------------------+
+|            title            |
++-----------------------------+
+| Zeg 'ns Aaa                 |
+| Catweazle                   |
+| The Adventures of Don Quick |
+| Albert and Victoria         |
+| Archie's Funhouse           |
+| Arnie                       |
+| Barefoot in the Park        |
+| Comedy Tonight              |
+| The Culture Vultures        |
+| Make Room for Granddaddy    |
++-----------------------------+
+sqlite> SELECT genre FROM genres WHERE show_id =
+   ...> (SELECT id FROM shows WHERE title = 'Catweazle');
++-----------+
+|   genre   |
++-----------+
+| Adventure |
+| Comedy    |
+| Family    |
++-----------+
+sqlite> SELECT title, genre FROM shows JOIN genres ON shows.id = genres.show_id WHERE id = 63881;
++-----------+-----------+
+|   title   |   genre   |
++-----------+-----------+
+| Catweazle | Adventure |
+| Catweazle | Comedy    |
+| Catweazle | Family    |
++-----------+-----------+
+sqlite> SELECT * FROM shows WHERE title = 'The Office';
++----------+------------+------+----------+
+|    id    |   title    | year | episodes |
++----------+------------+------+----------+
+| 112108   | The Office | 1995 | 6        |
+| 290978   | The Office | 2001 | 14       |
+| 386676   | The Office | 2005 | 188      |
+| 1791001  | The Office | 2010 | 30       |
+| 2186395  | The Office | 2012 | 8        |
+| 8305218  | The Office | 2019 | 28       |
+| 20877972 | The Office | 2022 | 20       |
++----------+------------+------+----------+
+sqlite> SELECT * FROM shows WHERE title = 'The Office' AND year = 2005;
++--------+------------+------+----------+
+|   id   |   title    | year | episodes |
++--------+------------+------+----------+
+| 386676 | The Office | 2005 | 188      |
++--------+------------+------+----------+
+sqlite> SELECT person_id FROM stars WHERE show_id =
+   ...> (SELECT id FROM shows WHERE title = 'The Office' AND year = 2005);
++-----------+
+| person_id |
++-----------+
+| 1526554   |
+| 136797    |
+| 278979    |
+| 1024677   |
+| 933988    |
+| 1534715   |
+| 1580911   |
++-----------+
+sqlite> SELECT name FROM people WHERE id IN
+   ...> (SELECT person_id FROM stars WHERE show_id =
+   ...>  (SELECT id FROM shows WHERE title = 'The Office' AND year = 2005));
++--------------------+
+|        name        |
++--------------------+
+| Steve Carell       |
+| Jenna Fischer      |
+| Rainn Wilson       |
+| John Krasinski     |
+| Angela Kinsey      |
+| Leslie David Baker |
+| Brian Baumgartner  |
++--------------------+
+sqlite> SELECT title FROM shows WHERE id IN
+   ...>  (SELECT show_id FROM stars WHERE person_id =
+   ...>   (SELECT id FROM people WHERE name = 'Steve Carell'));
++------------------------------------+
+|               title                |
++------------------------------------+
+| The Dana Carvey Show               |
+| Over the Top                       |
+| Watching Ellie                     |
+| Come to Papa                       |
+| The Office                         |
+| Entertainers with Byron Allen      |
+| The Naked Trucker and T-Bones Show |
+| ES.TV HD                           |
+| Mark at the Movies                 |
+| Inside Comedy                      |
+| Rove LA                            |
+| Metacafe Unfiltered                |
+| Fabrice Fabrice Interviews         |
+| Riot                               |
+| Séries express                     |
+| Hollywood Sessions                 |
+| First Impressions with Dana Carvey |
+| LA Times: The Envelope             |
+| Space Force                        |
+| Some Good News                     |
++------------------------------------+
+sqlite> SELECT title FROM shows
+   ...> JOIN stars ON shows.id = stars.show_id
+   ...> JOIN people ON stars.person_id = people.id
+   ...> WHERE name = 'Steve Carell';
++------------------------------------+
+|               title                |
++------------------------------------+
+| The Dana Carvey Show               |
+| Over the Top                       |
+| Watching Ellie                     |
+| Come to Papa                       |
+| The Office                         |
+| Entertainers with Byron Allen      |
+| The Naked Trucker and T-Bones Show |
+| Some Good News                     |
+| ES.TV HD                           |
+| Mark at the Movies                 |
+| Inside Comedy                      |
+| Rove LA                            |
+| Metacafe Unfiltered                |
+| Fabrice Fabrice Interviews         |
+| Riot                               |
+| Séries express                     |
+| Hollywood Sessions                 |
+| First Impressions with Dana Carvey |
+| LA Times: The Envelope             |
+| Space Force                        |
++------------------------------------+
+sqlite> SELECT title FROM shows, stars, people
+   ...> WHERE shows.id = stars.show_id
+   ...> AND people.id = stars.person_id
+   ...> AND name = 'Steve Carell';
++------------------------------------+
+|               title                |
++------------------------------------+
+| The Dana Carvey Show               |
+| Over the Top                       |
+| Watching Ellie                     |
+| Come to Papa                       |
+| The Office                         |
+| Entertainers with Byron Allen      |
+| The Naked Trucker and T-Bones Show |
+| Some Good News                     |
+| ES.TV HD                           |
+| Mark at the Movies                 |
+| Inside Comedy                      |
+| Rove LA                            |
+| Metacafe Unfiltered                |
+| Fabrice Fabrice Interviews         |
+| Riot                               |
+| Séries express                     |
+| Hollywood Sessions                 |
+| First Impressions with Dana Carvey |
+| LA Times: The Envelope             |
+| Space Force                        |
++------------------------------------+
+sqlite> .schema writers
+CREATE TABLE writers (
+    show_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    FOREIGN KEY(show_id) REFERENCES shows(id),
+    FOREIGN KEY(person_id) REFERENCES people(id)
+);
+sqlite> .schema stars
+CREATE TABLE stars (
+    show_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    FOREIGN KEY(show_id) REFERENCES shows(id),
+    FOREIGN KEY(person_id) REFERENCES people(id)
+);
+sqlite> TIMER ON
+sqlite> SELECT * FROM shows WHERE title = 'The Office';
++----------+------------+------+----------+
+|    id    |   title    | year | episodes |
++----------+------------+------+----------+
+| 112108   | The Office | 1995 | 6        |
+| 290978   | The Office | 2001 | 14       |
+| 386676   | The Office | 2005 | 188      |
+| 1791001  | The Office | 2010 | 30       |
+| 2186395  | The Office | 2012 | 8        |
+| 8305218  | The Office | 2019 | 28       |
+| 20877972 | The Office | 2022 | 20       |
++----------+------------+------+----------+
+Run Time: real 0.034 user 0.028061 sys 0.004638
+sqlite> CREATE INDEX title_index ON shows (title);
+Run Time: real 0.320 user 0.182481 sys 0.039272
+sqlite> SELECT * FROM shows WHERE title = 'The Office';
++----------+------------+------+----------+
+|    id    |   title    | year | episodes |
++----------+------------+------+----------+
+| 112108   | The Office | 1995 | 6        |
+| 290978   | The Office | 2001 | 14       |
+| 386676   | The Office | 2005 | 188      |
+| 1791001  | The Office | 2010 | 30       |
+| 2186395  | The Office | 2012 | 8        |
+| 8305218  | The Office | 2019 | 28       |
+| 20877972 | The Office | 2022 | 20       |
++----------+------------+------+----------+
+Run Time: real 0.000 user 0.000329 sys 0.000000
+sqlite> SELECT title FROM shows, stars, people
+   ...> WHERE shows.id = stars.show_id
+   ...> AND people.id = stars.person_id
+   ...> AND name = 'Steve Carell';
++------------------------------------+
+|               title                |
++------------------------------------+
+| The Dana Carvey Show               |
+| Over the Top                       |
+| Watching Ellie                     |
+| Come to Papa                       |
+| The Office                         |
+| Entertainers with Byron Allen      |
+| The Naked Trucker and T-Bones Show |
+| Some Good News                     |
+| ES.TV HD                           |
+| Mark at the Movies                 |
+| Inside Comedy                      |
+| Rove LA                            |
+| Metacafe Unfiltered                |
+| Fabrice Fabrice Interviews         |
+| Riot                               |
+| Séries express                     |
+| Hollywood Sessions                 |
+| First Impressions with Dana Carvey |
+| LA Times: The Envelope             |
+| Space Force                        |
++------------------------------------+
+Run Time: real 2.647 user 1.614660 sys 0.950687
+sqlite> CREATE INDEX person_index ON stars(person_id);
+Run Time: real 1.473 user 1.197877 sys 0.113965
+sqlite> CREATE INDEX show_index ON stars (show_id);
+Run Time: real 1.124 user 0.880230 sys 0.114364
+sqlite> CREATE INDEX name_index ON people(name);
+Run Time: real 0.797 user 0.584222 sys 0.082281
+sqlite> SELECT title FROM shows, stars, people
+   ...> WHERE shows.id = stars.show_id
+   ...> AND people.id = stars.person_id
+   ...> AND name = 'Steve Carell';
++------------------------------------+
+|               title                |
++------------------------------------+
+| The Dana Carvey Show               |
+| Over the Top                       |
+| Watching Ellie                     |
+| Come to Papa                       |
+| The Office                         |
+| Entertainers with Byron Allen      |
+| The Naked Trucker and T-Bones Show |
+| Some Good News                     |
+| ES.TV HD                           |
+| Mark at the Movies                 |
+| Inside Comedy                      |
+| Rove LA                            |
+| Metacafe Unfiltered                |
+| Fabrice Fabrice Interviews         |
+| Riot                               |
+| Séries express                     |
+| Hollywood Sessions                 |
+| First Impressions with Dana Carvey |
+| LA Times: The Envelope             |
+| Space Force                        |
++------------------------------------+
+Run Time: real 0.002 user 0.000114 sys 0.000443

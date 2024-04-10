@@ -1,0 +1,71 @@
+sqlite3 favorites.db
+.mode csv
+.import data/favorites.csv favorites
+.quit
+
+sqlite3 data/favorites.db
+.schema
+
+SELECT * FROM favorites;
+
+SELECT language FROM favorites LIMIT 10;
+
+SELECT COUNT(*) FROM favorites;
+
+SELECT DISTINCT(language) FROM favorites;
+
+SELECT COUNT(DISTINCT(language)) FROM favorites;
++----------+
+| language |
++----------+
+| Python   |
+| Scratch  |
+| C        |
++----------+
+
+SELECT COUNT(*) FROM favorites WHERE language = 'C'
++----------+
+| COUNT(*) |
++----------+
+| 78       |
++----------+
+
+SELECT COUNT(*) FROM favorites WHERE language = 'C' AND problem = 'Hello, World';
++----------+
+| COUNT(*) |
++----------+
+| 7        |
++----------+
+
+SELECT language, COUNT(*) FROM favorites GROUP BY language;
++----------+----------+
+| language | COUNT(*) |
++----------+----------+
+| C        | 78       |
+| Python   | 280      |
+| Scratch  | 40       |
++----------+----------+
+
+SELECT language, COUNT(*) FROM favorites GROUP BY language ORDER BY COUNT(*) DESC;
++----------+----------+
+| language | COUNT(*) |
++----------+----------+
+| Python   | 280      |
+| C        | 78       |
+| Scratch  | 40       |
++----------+----------+
+
+SELECT language, COUNT(*) AS n FROM favorites GROUP BY language ORDER BY n DESC;
++----------+-----+
+| language |  n  |
++----------+-----+
+| Python   | 280 |
+| C        | 78  |
+| Scratch  | 40  |
++----------+-----+
+
+INSERT INTO favorites (language, problem) VALUES('SQL', 'Fiftyville');
+
+DELETE FROM favorites WHERE Timestamp IS NULL;
+
+UPDATE favorites SET language = 'SQL', problem = 'Fiftyville';
