@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+    <p class="h4">Portfolio</p>
+    <div class="mb-3"></div>
+    <div class="d-flex justify-content-center">
+        <table class="table w-75">
+            <thead>
+                <tr>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Shares</th>
+                    <th scope="col">Current price</th>
+                    <th scope="col">Shares value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in user_portfolio %}
+                    <tr scope="row">
+                        <td>{{ stock.symbol }}</td>
+                        <td>{{ stock.shares }}</td>
+                        <td>{{ stock.price | usd }}</td>
+                        <td>{{ stock.value | usd }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-5"></div>
+
+    <p class="h4 mb-3">Balance</p>
+    <div class="d-flex justify-content-center">
+        <table class="table w-25">
+            <tr scope="row">
+                <td class="text-start"><b>Cash:</b></td>
+                <td class="text-end">{{ user_balance.cash | usd }}</td>
+            </tr>
+            <tr scope="row">
+                <td class="text-start"><b>Stocks:</b></td>
+                <td class="text-end">{{ user_balance.stocks | usd }}</td>
+            </tr>
+            <tr scope="row">
+                <td class="text-start"><b>Total balance:</b></td>
+                <td class="text-end">{{ user_balance.balance | usd }}</td>
+            </tr>
+        </table>
+    </div>
+
+{% endblock %}
